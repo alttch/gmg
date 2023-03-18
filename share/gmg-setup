@@ -1,0 +1,36 @@
+#!/bin/sh
+
+NAME=$1
+EMAIL=$2
+
+if [ -z "$EMAIL" ]; then
+  echo "Usage: $0 <name> <email>"
+  exit 0
+fi
+
+apt -y install bash git || exit 1
+groupadd --system git
+adduser --system --home /git --no-create-home --quiet --ingroup git git
+
+mkdir -p /git || exit 1
+chmod 755 /git || exit 1
+chown git:git /git || exit 1
+mkdir -p /git/.config || exit 1
+chmod 755 /git/.config || exit 1
+mkdir -p /git/.config/cgit || exit 1
+chmod 755 /git/.config/cgit || exit 1
+
+cp ./hooks/update /usr/share/git-core/templates/hooks/ || exit 1
+
+mkdir -p /etc/bash_completion.d
+cp ./bash_completion.d/gmg /etc/bash_completion.d/
+
+cat > /root/.gitconfig <<EOF
+[user]
+name = ${NAME}
+email = ${EMAIL}
+[safe]
+  directory = *
+EOF
+
+echo "Setup completed"

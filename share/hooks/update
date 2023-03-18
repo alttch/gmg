@@ -1,0 +1,98 @@
+#!/bin/bash
+#
+# Config
+# ------
+# hooks.branch.<name>.protected
+#   This boolean sets whether non-fast-forward updates will be allowed for
+#   branch <name>. By default they won't be.
+#
+#  git config hooks.branch.main.protected true
+#  git config hooks.branch.main.protected false
+#
+#  push into protected:
+#
+#  git config "hooks.user.USER.maintainer" true
+#  git config --unset "hooks.user.USER.maintainer"
+#
+
+# --- Command line
+refname="$1"
+oldrev="$2"
+newrev="$3"
+
+# --- Safety check
+if [ -z "$GIT_DIR" ]; then
+  echo "Don't run this script from the command line." >&2
+  echo " (if you want, you could supply GIT_DIR then run" >&2
+  echo "  $0 <ref> <oldrev> <newrev>)" >&2
+  exit 1
+  fi
+
+  if [ -z "$refname" ] || [ -z "$oldrev" ] || [ -z "$newrev" ]; then
+    echo "Usage: $0 <ref> <oldrev> <newrev>" >&2
+    exit 1
+  fi
+
+# --- Check types
+# if $newrev is 0000...0000, it's a commit to delete a ref.
+zero="0000000000000000000000000000000000000000"
+if [ "$newrev" = "$zero" ]; then
+  newrev_type=delete
+else
+  newrev_type=$(git cat-file -t "$newrev")
+fi
+
+branch=${refname##refs/heads/}
+protected=$(git config --bool hooks.branch."$branch".protected)
+if [ "$protected" = "true" ]; then
+  ME=$(id -un)
+  if [ "$(id -u)" != "0" ]; then
+    if [ "$(git config --bool hooks.user."${ME}".maintainer)" != "true" ]; then
+      echo "User ${ME} is not allowed to push into ${branch}"
+      exit 1
+    fi
+  fi
+fi
+case "$refname","$newrev_type" in
+  refs/tags/*,commit)
+    # un-annotated tag
+    ;;
+  refs/tags/*,delete)
+    # delete tag
+    ;;
+  refs/tags/*,tag)
+    # annotated tag
+    ;;
+  refs/heads/*,commit)
+    if [ "$oldrev" != "$zero" ]; then
+      if [ "$(git rev-list "$newrev".."$oldrev")" ]; then
+        if [ "$protected" = "true" ]; then
+          echo "hooks/update: Non-fast-forward updates are not allowed for branch $branch"
+          exit 1
+        fi
+      fi
+    fi
+    ;;
+  refs/heads/*,delete)
+    branch=${refname##refs/heads/}
+    protected=$(git config --bool hooks.branch."$branch".protected)
+    if [ "$protected" = "true" ]; then
+      echo "hooks/update: branch $branch is protected can not be deleted"
+      exit 1
+    fi
+    ;;
+  refs/remotes/*,commit)
+    # tracking branch
+    ;;
+  refs/remotes/*,delete)
+    # delete tracking branch
+    ;;
+  *)
+    # Anything else (is there anything else?)
+    echo "hooks/update: Unknown type of update to ref $refname of type $newrev_type" >&2
+    exit 1
+    ;;
+esac
+
+# --- Finished
+exit 0

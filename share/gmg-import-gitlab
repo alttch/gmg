@@ -1,0 +1,47 @@
+#!/bin/sh
+
+RP=$1
+
+if [ -z "${RP}" ]; then
+  echo "Usage: $0 <repo_path.git>"
+  exit 0
+fi
+
+if [ ! -f "$RP/config" ]; then
+  echo "Invalid repository"
+  exit 1
+fi
+
+echo "Converting ${RP}"
+
+MAIN=$(head -1 "${RP}/HEAD"|sed 's/.*\///g')
+[ -z "${MAIN}" ] && exit 1
+echo "Main branch: ${MAIN}"
+
+NAME=$(git config -f "$RP/config" gitlab.fullpath)
+NAME=$(echo -n "${NAME}"|cut -c-30)
+[ -z "${NAME}" ] && exit 1
+echo "Name: ${NAME}"
+
+gmg repo create "${NAME}" --init-only || exit 2
+
+echo "Converting"
+
+NEWPATH="/git/${NAME}.git"
+
+mv -f "${NEWPATH}/config" "${NEWPATH}/config.bak" || exit 3
+cp -prf "$RP"/* "${NEWPATH}/" || exit 3
+mv -f "${NEWPATH}/config.bak" "${NEWPATH}/config" || exit 3
+
+echo "Fixing permissions"
+cd "${NEWPATH}" || exit 4
+git config "hooks.branch.${MAIN}.protected" true || exit 4
+find ./* -type d -exec chmod 2775 {} \; || exit 4
+find ./* -type f -exec chmod 664 {} \; || exit 4
+find ./objects -type f -exec chmod 444 {} \; || exit 4
+chmod -R 000755 hooks || exit 4
+chmod 644 config || exit 4
+chown -R "git:g_${NAME}" * || exit 4
+chown "git:g_${NAME}" "${NEWPATH}" || exit 4
+
+echo "Converted: ${NAME}"

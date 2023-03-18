@@ -1,0 +1,125 @@
+_gmg_users() {
+  gmg user list -s
+}
+
+_gmg_repos() {
+  gmg repo list -s
+}
+
+_gmg_branches() {
+  gmg repo branches "$1" -s
+}
+
+_gmg_remove_global_opts() {
+  case "${words[1]}" in
+    -v|--verbose|-h|--help)
+      words=("${words[@]:1}")
+      cword=$((cword-1))
+      ;;
+  esac
+}
+
+_gmg_repo() {
+  local cur prev words cword
+  _init_completion || return
+  _gmg_remove_global_opts
+  if [[ $cword -eq 2 ]]; then
+    COMPREPLY=( $( compgen -W "archive branches check cleanup create destroy fix info list protect rename set unprotect users help" -- "$cur" ))
+  elif [[ $cword -eq 3 ]]; then
+    case "${words[2]}" in
+      archive|branches|check|cleanup|destroy|fix|info|protect|rename|set|unprotect|users)
+        COMPREPLY=( $( compgen -W "$(_gmg_repos)" -- "$cur" ))
+        ;;
+      *)
+        COMPREPLY=()
+        ;;
+    esac
+  elif [[ $cword -eq 4 ]]; then
+    case "${words[2]}" in
+      protect|unprotect)
+        COMPREPLY=( $( compgen -W "$(_gmg_branches "${words[3]}")" -- "$cur" ))
+        ;;
+      set)
+        COMPREPLY=( $( compgen -W "description" -- "$cur" ))
+        ;;
+      *)
+        COMPREPLY=()
+        ;;
+    esac
+  else
+    COMPREPLY=()
+  fi
+}
+
+_gmg_user() {
+  local cur prev words cword
+  _init_completion || return
+  _gmg_remove_global_opts
+  if [[ $cword -eq 2 ]]; then
+    COMPREPLY=( $( compgen -W "create destroy grant list repos revoke update help" -- "$cur" ))
+  elif [[ $cword -eq 3 ]]; then
+    case "${words[2]}" in
+      destroy|grant|repos|revoke|update)
+        COMPREPLY=( $( compgen -W "$(_gmg_users)" -- "$cur" ))
+        ;;
+      *)
+        COMPREPLY=()
+        ;;
+    esac
+  elif [[ $cword -eq 4 ]]; then
+    case "${words[2]}" in
+      grant|revoke)
+        COMPREPLY=( $( compgen -W "$(_gmg_repos)" -- "$cur" ))
+        ;;
+      *)
+        COMPREPLY=()
+        ;;
+    esac
+  elif [[ $cword -eq 5 ]]; then
+    case "${words[2]}" in
+      create)
+        _filedir
+        ;;
+      *)
+        COMPREPLY=()
+        ;;
+    esac
+  else
+    COMPREPLY=()
+  fi
+}
+
+_gmg_maintainer() {
+  local cur prev words cword
+  _init_completion || return
+  _gmg_remove_global_opts
+  if [[ $cword -eq 2 ]]; then
+    COMPREPLY=( $( compgen -W "set unset" -- "$cur" ))
+  elif [[ $cword -eq 3 ]]; then
+    COMPREPLY=( $( compgen -W "$(_gmg_users)" -- "$cur" ))
+  elif [[ $cword -eq 4 ]]; then
+    COMPREPLY=( $( compgen -W "$(_gmg_repos)" -- "$cur" ))
+  else
+    COMPREPLY=()
+  fi
+}
+
+_gmg() {
+  local cur prev words cword
+  _init_completion || return
+  _gmg_remove_global_opts
+  if [[ $cword -eq 1 ]]; then
+    COMPREPLY=( $( compgen -W 'repo user maintainer help -v --verbose -h --help -V --version' -- "$cur" ))
+  else
+    case "${words[1]}" in
+      repo|user|maintainer)
+        "_gmg_${words[1]}"
+        ;;
+      *)
+        COMPREPLY=()
+        ;;
+    esac
+  fi
+}
+
+complete -F _gmg gmg

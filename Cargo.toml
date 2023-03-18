@@ -1,0 +1,24 @@
+[package]
+name = "gmg"
+version = "0.1.0"
+authors = ["Serhij S. <div@altertech.com>"]
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/alttch/gmg"
+description = "git repo command-line manager"
+readme = "README.md"
+keywords = ["git", "cli", "vcs"]
+
+[dependencies]
+clap = { version = "4.0.15", features = ["derive"] }
+lazy_static = "1.4.0"
+users = "0.11.0"
+tempdir = "0.3.7"
+colored = "2.0.0"
+bmart-derive = "0.1.3"
+which = "4.3.0"
+configparser = "3.0.2"
+
+[profile.release]
+strip = true
+codegen-units = 1
