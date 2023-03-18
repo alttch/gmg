@@ -32,7 +32,7 @@ cd share && ./gmg-setup git@org git@org.com
 and that is it.
 
 The setup creates */git* folder for repositories and configures the global
-update hook to protect main branches.
+update hook to protect branches.
 
 ## Quick start
 
@@ -78,7 +78,7 @@ git clone ssh://bob@server:test
 
 ### Setting user as the maintainer
 
-Maintainers can write to the main branch, for others it is forbidden.
+Maintainers can write to protected branches, for others it is forbidden.
 
 ```
 gmg maintainer set bob test
