@@ -42,7 +42,9 @@ update hook to protect main branches.
 gmg repo create test -D "My test repo"
 ```
 
-The repository path can contain groups. E.g. "tests/test".
+The repository path can contain groups. E.g. "tests/test". gmg uses repository
+names as POSIX groups to manage access, so the full repository name (including
+groups) can not be longer than 30 symbols.
 
 ### Creating a user
 
