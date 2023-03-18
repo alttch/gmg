@@ -42,6 +42,8 @@ update hook to protect main branches.
 gmg repo create test -D "My test repo"
 ```
 
+The repository path can contain groups. E.g. "tests/test".
+
 ### Creating a user
 
 ```
@@ -55,6 +57,21 @@ argument)
 
 ```
 gmg user grant bob test
+```
+
+### Cloning
+
+Repositories can be cloned as
+
+```
+git clone ssh://bob@server/git/test
+```
+
+Additionally, users get symbolic links created in their homes as soon as access
+is granted:
+
+```
+git clone ssh://bob@server:test
 ```
 
 ### Setting user as the maintainer
