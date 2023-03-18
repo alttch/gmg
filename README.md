@@ -96,7 +96,8 @@ for all possible commands.
 
 ## Integrating with cgit
 
-gmg automatically generates cgit-compatible configs.
+gmg automatically generates cgit-compatible configs. The configs are generated
+individually for each user, using */etc/cgitrc* as the base one.
 
 * Install cgit and NGINX
 
