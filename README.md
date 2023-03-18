@@ -48,8 +48,8 @@ gmg repo create test -D "My test repo"
 gmg user create bob "Bob M" -
 ```
 
-Copy-paste the public ssh key-file to stdin (or use the file name instead of
-"-" argument)
+Copy-paste the public ssh key-file to stdin (or use a file name instead of "-"
+argument)
 
 ### Granting user access to a repository
 
