@@ -68,7 +68,7 @@ git clone ssh://bob@server/git/test
 ```
 
 Additionally, users get symbolic links created in their homes as soon as access
-is granted:
+has been granted:
 
 ```
 git clone ssh://bob@server:test
