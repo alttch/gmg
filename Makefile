@@ -9,7 +9,10 @@ tag:
 ver:
 	sed -i 's/^version = ".*/version = "${VERSION}"/g' Cargo.toml
 
-release: tag pkg
+release: cpub tag pkg
+
+cpub:
+	cargo publish
 
 pkg:
 	rm -rf _build
