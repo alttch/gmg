@@ -18,7 +18,6 @@ pkg:
 	rm -rf _build
 	mkdir -p _build
 	cross build --target x86_64-unknown-linux-musl --release
-	cross build --target arm-unknown-linux-musleabihf --release
 	cross build --target aarch64-unknown-linux-musl --release
 	cd target/x86_64-unknown-linux-musl/release && cp gmg ../../../_build/gmg-${VERSION}-x86_64
 	cd target/arm-unknown-linux-musleabihf/release && cp gmg ../../../_build/gmg-${VERSION}-arm-musleabihf
@@ -26,6 +25,5 @@ pkg:
 		aarch64-linux-gnu-strip gmg && \
 		cp gmg ../../../_build/gmg-${VERSION}-aarch64
 	cd _build && echo "" | gh release create v$(VERSION) -t "v$(VERSION)" \
-		gmg-${VERSION}-arm-musleabihf \
 		gmg-${VERSION}-x86_64 \
 		gmg-${VERSION}-aarch64
