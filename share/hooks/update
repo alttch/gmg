@@ -72,6 +72,11 @@ case "$refname","$newrev_type" in
         fi
       fi
     fi
+    rci_url=$(git config hooks.branch."$branch".rci.url)
+    rci_secret=$(git config hooks.branch."$branch".rci.secret)
+    if [ "$rci_url" ] && [ "$rci_secret" ]; then
+      curl -X POST "${rci_url}" -H "x-trigger-key:${rci_secret}" > /dev/null 2>&1 &
+    fi
     ;;
   refs/heads/*,delete)
     branch=${refname##refs/heads/}
