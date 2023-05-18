@@ -24,10 +24,10 @@ _gmg_repo() {
   _init_completion || return
   _gmg_remove_global_opts
   if [[ $cword -eq 2 ]]; then
-    COMPREPLY=( $( compgen -W "archive branches check cleanup create destroy fix info list protect rename set unprotect users help" -- "$cur" ))
+    COMPREPLY=( $( compgen -W "archive branches check cleanup create destroy fix info list protect rci rename set unprotect users help" -- "$cur" ))
   elif [[ $cword -eq 3 ]]; then
     case "${words[2]}" in
-      archive|branches|check|cleanup|destroy|fix|info|protect|rename|set|unprotect|users)
+      archive|branches|check|cleanup|destroy|fix|info|protect|rci|rename|set|unprotect|users)
         COMPREPLY=( $( compgen -W "$(_gmg_repos)" -- "$cur" ))
         ;;
       *)
@@ -36,7 +36,7 @@ _gmg_repo() {
     esac
   elif [[ $cword -eq 4 ]]; then
     case "${words[2]}" in
-      protect|unprotect)
+      protect|unprotect|rci)
         COMPREPLY=( $( compgen -W "$(_gmg_branches "${words[3]}")" -- "$cur" ))
         ;;
       set)

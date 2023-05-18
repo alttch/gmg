@@ -105,6 +105,32 @@ struct RepoParams {
 }
 
 #[derive(Parser)]
+struct RepoRciParams {
+    #[clap()]
+    repository: Repository,
+    #[clap()]
+    branch: String,
+    #[clap(subcommand)]
+    command: RciCommand,
+}
+
+#[derive(Parser)]
+enum RciCommand {
+    Set(RciSetParams),
+    Unset,
+}
+
+#[derive(Parser)]
+struct RciSetParams {
+    #[clap(help = "RCI server top URL")]
+    rci_url: String,
+    #[clap()]
+    rci_job: String,
+    #[clap()]
+    rci_secret: String,
+}
+
+#[derive(Parser)]
 struct RepoBranchParams {
     #[clap()]
     repository: Repository,
@@ -163,6 +189,7 @@ enum RepoCommand {
     Rename(RepoRenameParams),
     Unprotect(RepoBranchParams),
     Users(RepoParams),
+    Rci(RepoRciParams),
 }
 
 #[derive(Subcommand)]
@@ -291,6 +318,47 @@ fn repo_cmd(command: RepoCommand) -> DResult<()> {
         RepoCommand::Users(params) => {
             for user in params.repository.users()? {
                 println!("{}", user.login_colored());
+            }
+        }
+        RepoCommand::Rci(params) => {
+            let branch = params.branch;
+            match params.command {
+                RciCommand::Set(c) => {
+                    let rci_job = c.rci_job;
+                    let rci_secret = c.rci_secret;
+                    let mut url = c.rci_url.as_str();
+                    while url.ends_with('/') {
+                        url = &url[..url.len() - 1];
+                    }
+                    let rci_trigger_url = format!("{url}/api/v1/job/{rci_job}/trigger");
+                    params
+                        .repository
+                        .set(&format!("hooks.branch.{branch}.rci.url"), &rci_trigger_url)?;
+                    params
+                        .repository
+                        .set(&format!("hooks.branch.{branch}.rci.secret"), &rci_secret)?;
+                    println!(
+                        "RCI config {} for {} branch {}, trigger URL: {}",
+                        "SET".green().bold(),
+                        params.repository.name_colored(),
+                        branch.yellow(),
+                        rci_trigger_url
+                    );
+                }
+                RciCommand::Unset => {
+                    params
+                        .repository
+                        .unset(&format!("hooks.branch.{branch}.rci.url"))?;
+                    params
+                        .repository
+                        .unset(&format!("hooks.branch.{branch}.rci.secret"))?;
+                    println!(
+                        "RCI config {} for {} branch {}",
+                        "UNSET".yellow().bold(),
+                        params.repository.name_colored(),
+                        branch.yellow()
+                    );
+                }
             }
         }
     }
