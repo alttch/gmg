@@ -1,13 +1,10 @@
-VERSION=0.1.0
+VERSION=$(shell grep ^version Cargo.toml|cut -d\" -f2)
 
 all: test
 
 tag:
 	git tag -a v${VERSION} -m v${VERSION}
 	git push origin --tags
-
-ver:
-	sed -i 's/^version = ".*/version = "${VERSION}"/g' Cargo.toml
 
 release: cpub tag pkg
 
