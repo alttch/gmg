@@ -46,6 +46,18 @@ _gmg_repo() {
         COMPREPLY=()
         ;;
     esac
+  elif [[ $cword -eq 5 ]]; then
+    case "${words[2]}" in
+      rci)
+        COMPREPLY=( $( compgen -W "set unset" -- "$cur" ))
+        ;;
+      set)
+        COMPREPLY=( $( compgen -W "description" -- "$cur" ))
+        ;;
+      *)
+        COMPREPLY=()
+        ;;
+    esac
   else
     COMPREPLY=()
   fi
