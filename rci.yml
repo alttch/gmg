@@ -1,0 +1,17 @@
+git:
+  url: https://github.com/alttch/gmg
+  branch: main
+secret: null
+commands:
+  build: |
+    source ~/.cargo/env
+    make pkg
+  test: null
+  release: |
+    source ~/.cargo/env
+    make upload-pkg
+on:
+  success: job-notify
+  fail: job-notify
+timeout: 600
+
