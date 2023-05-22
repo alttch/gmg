@@ -6,7 +6,10 @@ tag:
 	git tag -a v${VERSION} -m v${VERSION}
 	git push origin --tags
 
-release: tag cpub pkg
+release: tag cpub rci_release
+
+rci_release:
+	rci x gmg
 
 cpub:
 	cargo publish
@@ -16,6 +19,8 @@ pkg:
 	mkdir -p _build
 	cross build --target x86_64-unknown-linux-musl --release
 	cross build --target aarch64-unknown-linux-musl --release
+
+upload-pkg:
 	cd target/x86_64-unknown-linux-musl/release && cp gmg /opt/gmg/_build/gmg-${VERSION}-x86_64
 	cd target/aarch64-unknown-linux-musl/release && \
 		aarch64-linux-gnu-strip gmg && \
