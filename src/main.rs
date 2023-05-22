@@ -330,7 +330,7 @@ fn repo_cmd(command: RepoCommand) -> DResult<()> {
                     while url.ends_with('/') {
                         url = &url[..url.len() - 1];
                     }
-                    let rci_trigger_url = format!("{url}/api/v1/job/{rci_job}/trigger");
+                    let rci_trigger_url = format!("{url}/job/{rci_job}/trigger");
                     params
                         .repository
                         .set(&format!("hooks.branch.{branch}.rci.url"), &rci_trigger_url)?;
