@@ -6,7 +6,7 @@ tag:
 	git tag -a v${VERSION} -m v${VERSION}
 	git push origin --tags
 
-release: cpub tag pkg
+release: tag cpub pkg
 
 cpub:
 	cargo publish
